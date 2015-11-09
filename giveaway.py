@@ -18,7 +18,7 @@ r.set_oauth_app_info(client_id=args.client_id,
                      client_secret=args.key,
                      redirect_uri='http://127.0.0.1:65010/authorize_callback')
 
-url = r.get_authorize_url('uniqueKey', 'identity', True)
+url = r.get_authorize_url('uniqueKey', 'submit', True)
 webbrowser.open(url)
 
 access_code = raw_input('Enter access code: ')
