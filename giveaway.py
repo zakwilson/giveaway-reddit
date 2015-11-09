@@ -47,3 +47,4 @@ def process_comments(comments):
             reply = str(n)
             n = n+1
         c.reply(reply)
+    print n, " entries"
