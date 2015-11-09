@@ -45,8 +45,9 @@ def process_comments(comments):
             reply = reply + "Your comment karma ({c.author.comment_karma}) is below the minimum ({min_karma}) - please participate constructively on reddit to earn more karma and try again in the next giveaway\n\n".format(min_karma=min_karma, **locals())
         if len(reply) == 0:
             reply = str(n)
+            print n
             n = n+1
         c.reply(reply)
-    print n, " entries"
+    print n-1, " entries"
 
 process_comments(comments)
