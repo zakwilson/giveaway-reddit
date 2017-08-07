@@ -2,6 +2,7 @@ import praw
 import argparse
 import webbrowser
 import time
+import random
 
 min_karma = 100
 min_age_days = 60
@@ -32,9 +33,9 @@ submission.replace_more_comments(limit=None, threshold=0)
 comments = submission.comments
 
 def process_comments(comments):
-    n = 1
     now = time.mktime(time.gmtime())
     min_age = min_age_days * 24 * 60 * 60
+    entrants = set()
     for c in comments:
         reply = ""
         if "not in" in c.body.lower():
@@ -44,10 +45,8 @@ def process_comments(comments):
         if c.author.comment_karma < min_karma:
             reply = reply + "Your comment karma ({c.author.comment_karma}) is below the minimum ({min_karma}) - please participate constructively on reddit to earn more karma and try again in the next giveaway\n\n".format(min_karma=min_karma, **locals())
         if len(reply) == 0:
-            reply = str(n)
-            print n
-            n = n+1
-        c.reply(reply)
-    print n-1, " entries"
+            print '.'
+            entrants.add(c.author)
+    print random.choice(list(entrants))
 
 process_comments(comments)
