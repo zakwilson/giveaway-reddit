@@ -13,40 +13,30 @@ parser.add_argument('key')
 parser.add_argument('post')
 args = parser.parse_args()
 
-r = praw.Reddit('Giveaway script for /r/flashlight by /u/Zak')
+r = praw.Reddit(client_id=args.client_id,
+                client_secret=args.key,
+                user_agent='Giveaway script for /r/flashlight by /u/Zak')
 
-r.set_oauth_app_info(client_id=args.client_id,
-                     client_secret=args.key,
-                     redirect_uri='http://127.0.0.1:65010/authorize_callback')
+submission = r.submission(id=args.post)
 
-url = r.get_authorize_url('uniqueKey', 'submit', True)
-webbrowser.open(url)
-
-access_code = raw_input('Enter access code: ')
-
-access_information = r.get_access_information(access_code)
-
-r.set_access_credentials(**access_information)
-
-submission = r.get_submission(submission_id=args.post)
-submission.replace_more_comments(limit=None, threshold=0)
 comments = submission.comments
+comments.replace_more(limit=512) # destructive and returns something useless
 
 def process_comments(comments):
     now = time.mktime(time.gmtime())
     min_age = min_age_days * 24 * 60 * 60
     entrants = set()
     for c in comments:
-        reply = ""
+        valid_entry = True
         if "not in" in c.body.lower():
-            reply = reply + "\"Not in\" detected in comment: your non-participation is acknowledged\n\n"
+            valid_entry = False
         if now - c.author.created_utc < min_age:
-            reply = reply + "Your account is not old enough to participate: {min_age_days} days is the minimum\n\n".format(min_age_days=min_age_days, **locals())
+            valid_entry = False
         if c.author.comment_karma < min_karma:
-            reply = reply + "Your comment karma ({c.author.comment_karma}) is below the minimum ({min_karma}) - please participate constructively on reddit to earn more karma and try again in the next giveaway\n\n".format(min_karma=min_karma, **locals())
-        if len(reply) == 0:
-            print '.'
+            valid_entry = False
+        if valid_entry:
             entrants.add(c.author)
+    print len(entrants), " entries"
     print random.choice(list(entrants))
 
 process_comments(comments)
