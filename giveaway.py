@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser(description='Client ID, private key and post li
 parser.add_argument('client_id')
 parser.add_argument('key')
 parser.add_argument('post')
+parser.add_argument('n')
 args = parser.parse_args()
 
 r = praw.Reddit(client_id=args.client_id,
@@ -37,6 +38,6 @@ def process_comments(comments):
         if valid_entry:
             entrants.add(c.author)
     print len(entrants), " entries"
-    print random.choice(list(entrants))
+    print random.sample(list(entrants), int(args.n))
 
 process_comments(comments)
