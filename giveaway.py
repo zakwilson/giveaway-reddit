@@ -3,6 +3,7 @@ import argparse
 import webbrowser
 import time
 import random
+from prawcore.exceptions import NotFound
 
 min_karma = 100
 min_age_days = 60
@@ -20,7 +21,13 @@ r = praw.Reddit(client_id=args.client_id,
 
 submission = r.submission(id=args.post)
 
-comments = submission.comments
+try:
+    comments = submission.comments
+except NotFound:
+    parent = r.comment(args.post)
+    parent.refresh()
+    comments = parent.replies
+
 comments.replace_more(limit=512) # destructive and returns something useless
 
 def process_comments(comments):
@@ -31,9 +38,9 @@ def process_comments(comments):
         valid_entry = True
         if "not in" in c.body.lower():
             valid_entry = False
-        if now - c.author.created_utc < min_age:
+        if c.author and now - c.author.created_utc < min_age:
             valid_entry = False
-        if c.author.comment_karma < min_karma:
+        if c.author and c.author.comment_karma < min_karma:
             valid_entry = False
         if valid_entry:
             entrants.add(c.author)
